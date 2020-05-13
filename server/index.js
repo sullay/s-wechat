@@ -1,11 +1,14 @@
 const Koa = require('koa')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
+const koaBody = require('koa-body')
+const router = require('../middleware/router/index')
+const config = require('../nuxt.config.js')
+const websocketServer = require('./websockt')
 
 const app = new Koa()
 
 // Import and Set Nuxt.js options
-const config = require('../nuxt.config.js')
 config.dev = app.env !== 'production'
 
 async function start () {
@@ -19,6 +22,10 @@ async function start () {
 
   await nuxt.ready()
   // Build in development
+
+  app.use(koaBody())
+  app.use(router.routes(), router.allowedMethods())
+
   if (config.dev) {
     const builder = new Builder(nuxt)
     await builder.build()
@@ -32,6 +39,7 @@ async function start () {
   })
 
   app.listen(port, host)
+  websocketServer.listen(3001)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true
