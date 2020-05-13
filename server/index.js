@@ -2,10 +2,11 @@ const Koa = require('koa')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const koaBody = require('koa-body')
+const koajwt = require('koa-jwt')
 const router = require('../middleware/router/index')
 const config = require('../nuxt.config.js')
+const SECRET = require('../config/index').SECRET
 const websocketServer = require('./websockt')
-
 const app = new Koa()
 
 // Import and Set Nuxt.js options
@@ -28,11 +29,24 @@ async function start () {
   app.use(async (ctx, next) => {
     try {
       await next()
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
+      if (err.status === 401) {
+        ctx.status = 401
+        ctx.body = {
+          code: 401,
+          msg: '用户未登录'
+        }
+      }
     }
   })
   app.use(koaBody())
+  // jwt 中间件
+  app.use(koajwt({ secret: SECRET }).unless({
+    // 登录接口不需要验证
+    path: [/^(?!\/api)/, /^\/api\/login/]
+  }))
+  // 路由中间件
   app.use(router.routes(), router.allowedMethods())
   if (config.dev) {
     const builder = new Builder(nuxt)
