@@ -1,6 +1,8 @@
 const Router = require('koa-router')
 const jsonwebtoken = require('jsonwebtoken')
-const router = new Router({ prefix: '/api' })
+const router = new Router({
+  prefix: '/api'
+})
 const SECRET = require('../../config/index').SECRET
 // 示例
 const user = {
@@ -24,17 +26,21 @@ router.post('/login', (ctx) => {
   ctx.body = {
     code: 200,
     msg: '登陆成功',
-    token: `Bearer ${jsonwebtoken.sign(
-      { name: user.userName, id: user.id },
-      SECRET,
-      { expiresIn: '1h' }
-    )}`
+    data: {
+      userName: user.userName,
+      id: user.id,
+      token: `Bearer ${jsonwebtoken.sign(
+        { name: user.userName, id: user.id },
+        SECRET,
+        { expiresIn: '1h' }
+      )}`
+    }
   }
 })
-router.get('/userInfo', (ctx) => {
-  ctx.body = {
-    code: '200',
-    data: jsonwebtoken.decode(ctx.request.headers.authorization.replace(/^Bearer /, ''))
-  }
-})
+// router.get('/userInfo', (ctx) => {
+//   ctx.body = {
+//     code: '200',
+//     data: jsonwebtoken.decode(ctx.request.headers.authorization.replace(/^Bearer /, ''))
+//   }
+// })
 module.exports = router

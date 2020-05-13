@@ -3,7 +3,33 @@
     <nuxt />
   </div>
 </template>
-
+<script>
+import axios from '../plugins/axios'
+export default {
+  created () {
+    axios.interceptors.response.use(
+      (response) => {
+        console.log(response.config.url, response)
+        // 未登录/登录过期
+        if (response.data.code === 401) {
+          if (process.client) {
+            localStorage.setItem('userInfo', '')
+          }
+          this.$router.push('/login')
+        }
+        if (response.data.code !== 200) {
+          this.$message.error(response.data.msg)
+        }
+        return response
+      },
+      (error) => {
+        // Do something with response error
+        return Promise.reject(error)
+      }
+    )
+  }
+}
+</script>
 <style>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',

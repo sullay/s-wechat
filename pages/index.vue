@@ -29,11 +29,23 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import Logo from '~/components/Logo.vue'
-
 export default {
   components: {
     Logo
+  },
+  mounted () {
+    this.login({ userName: 'sullay', password: '1234565' }).then((res) => {
+      if (res.data.code === 200) {
+        this.$message.success(res.data.msg)
+      }
+    })
+  },
+  methods: {
+    ...mapActions({
+      login: 'login/login'
+    })
   }
 }
 </script>
