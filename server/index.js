@@ -17,12 +17,14 @@ async function start () {
 
   const {
     host = process.env.HOST || '127.0.0.1',
-    port = process.env.PORT || 3000
+    port = process.env.PORT || 3000,
+    sPort = process.env.sPort || 30001
   } = nuxt.options.server
 
   await nuxt.ready()
   // Build in development
 
+  // 错误处理
   app.use(async (ctx, next) => {
     try {
       await next()
@@ -45,7 +47,8 @@ async function start () {
   })
 
   app.listen(port, host)
-  websocketServer.listen(3001)
+  // websockt服务启动
+  websocketServer.listen(sPort)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true
