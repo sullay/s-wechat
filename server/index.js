@@ -23,9 +23,15 @@ async function start () {
   await nuxt.ready()
   // Build in development
 
+  app.use(async (ctx, next) => {
+    try {
+      await next()
+    } catch (error) {
+      console.error(error)
+    }
+  })
   app.use(koaBody())
   app.use(router.routes(), router.allowedMethods())
-
   if (config.dev) {
     const builder = new Builder(nuxt)
     await builder.build()
